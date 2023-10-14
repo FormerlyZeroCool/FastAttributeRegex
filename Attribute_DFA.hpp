@@ -12,7 +12,6 @@
 #include <fstream>
 #include "utils.hpp"
 
-class Attribute_NFA;
 struct Fast_Attribute_DFA {
     struct DFA_State {
         std::array<uint32_t, 128> transitions;
@@ -119,172 +118,28 @@ struct Fast_Attribute_DFA {
             return in;
         }
     };
-    std::ostream& write(std::ostream& o)
-    {
-        uint32_t size = this->states.size();
-        o.write(reinterpret_cast<char*>(&size), sizeof(size));
-        size = this->attributes.size();
-        o.write(reinterpret_cast<char*>(&size), sizeof(size));
-        size = this->regex.size();
-        o.write(reinterpret_cast<char*>(&size), sizeof(size));
-        o.write(this->regex.c_str(), size);
-        for(size_t i = 0; i < this->attributes.size(); i++)
-        {
-            size = this->attributes[i].size();
-            o.write(reinterpret_cast<char*>(&size), sizeof(size));
-            o.write(this->attributes[i].c_str(), this->attributes[i].size());
-        }
-        for(size_t i = 0; i < this->states.size(); i++)
-            this->states[i].write(o);
-        return o;
-    }
-    std::istream& read_string(std::istream& in, std::string& str)
-    {
-        uint32_t size = 0;
-        in.read(reinterpret_cast<char*>(&size), sizeof(size));
-        str.clear();
-        str.reserve(size);
-        for(size_t i = 0; i < size; i++)
-            str += ' ';
-
-        in.read(str.data(), size);
-        return in;
-    }
-    std::istream& read(std::istream& in)
-    {
-        uint32_t states_count = 0, attributes_count = 0;
-        in.read(reinterpret_cast<char*>(&states_count), sizeof(states_count));
-        in.read(reinterpret_cast<char*>(&attributes_count), sizeof(attributes_count));
-        read_string(in, regex);
-        std::string line;
-        this->attributes.clear();
-        for(size_t i = 0; i < attributes_count; i++)
-        {
-            read_string(in, line);
-            this->attributes.push_back(line);
-        }
-        this->states.clear();
-        this->states.reserve(states_count);
-        for(size_t i = 0; i < states_count; i++)
-        {
-            this->states.push_back(DFA_State(false, "", 0));
-            this->states.back().read(in);
-        }
-        return in;
-    }
-    void load_file(const std::string filepath)
-    {
-        std::ifstream file(filepath, std::ios::binary);
-        read(file);
-    }
-    void write_to_file(const std::string filepath)
-    {
-        std::ofstream file(filepath, std::ios::binary);
-        write(file);
-    }
+    std::ostream& write(std::ostream& o);
+    std::istream& read_string(std::istream& in, std::string& str);
+    std::istream& read(std::istream& in);
+    void load_file(const std::string filepath);
+    void write_to_file(const std::string filepath);
     std::vector<DFA_State> states;
     std::string regex;
     std::vector<std::string> attributes;
-    Fast_Attribute_DFA(std::string&& regex, std::deque<std::string>&& attributes): regex(regex)
-    {
-        for(size_t i = 0; i < attributes.size(); i++)
-            this->attributes.push_back(attributes[i]);
-    }
-    bool operator==(const Fast_Attribute_DFA& o) const
-    {
-        bool equal = states.size() == o.states.size() && regex.size() == o.regex.size() && attributes.size() == o.attributes.size();
-        for(size_t i = 0; equal && i < states.size(); i++)
-        {
-            const DFA_State& state = states[i];
-            const DFA_State& ostate = o.states[i];
-            equal = state == ostate;
-        }
-        return equal;
-    }
-    friend std::ostream& operator<<(std::ostream& o, const Fast_Attribute_DFA& dfa)
-    {
-        for(size_t state_index = 0; state_index < dfa.states.size(); state_index++)
-        {
-            const DFA_State& state = dfa.states[state_index];
-            std::cout<<state_index<<(state.is_accepting() ? "@":"")<<(state.is_accepting() ? dfa.get_attribute(state):"")<<": {";
-            for(size_t i = ' '; i < 128; i++)
-            {
-                if(state.transition_iterator(i) != -1)
-                    std::cout<<((char) i)<<":"<<state.transition_iterator(i)<<", ";
-            }
-            std::cout<<"}\n";
-        }
-        return o;
-    }
-    size_t start_state() const noexcept
-    {
-        return 0;
-    }
-    uint32_t transition(char symbol, uint32_t current_state) const noexcept
-    {
-        if(current_state == -1)
-            return -1;
-        return states[current_state].transitions[symbol];
-    }
-    const std::vector<DFA_State>& get_states() const noexcept
-    {
-        return states;
-    }
-    const std::string& get_attribute(const DFA_State& state) const noexcept
-    {
-        return attributes[state.attribute_priority];
-    }
+    Fast_Attribute_DFA(const std::string& regex, const std::deque<std::string>& attributes);
+    bool operator==(const Fast_Attribute_DFA& o) const noexcept;
+    friend std::ostream& operator<<(std::ostream& o, const Fast_Attribute_DFA& dfa);
+    size_t start_state() const noexcept;
+    uint32_t transition(char symbol, uint32_t current_state) const noexcept;
+    const std::vector<DFA_State>& get_states() const noexcept;
+    const std::string& get_attribute(const DFA_State& state) const noexcept;
     struct ParseRecord {
         const size_t state, end_index;
         ParseRecord(const size_t state, const size_t end): state(state), end_index(end) {}
     };
-    ParseRecord parse_token_simple(const std::string_view input_text, const size_t start)
-    {
-
-        uint32_t state = this->start_state();
-        uint32_t last_state = -1;
-        size_t input_index = start;
-        const char original_ending = (*(const_cast<char*>(input_text.data()) + input_text.size()));
-        (*(const_cast<char*>(input_text.data()) + input_text.size())) = 0;
-        while(state != -1 && input_index <= input_text.size())
-        {
-            last_state = state;
-            state = this->states[state].transitions[input_text[input_index]];
-            input_index++;
-            if(state != -1 && input_index == input_text.size())
-                last_state = state;
-            if(state != -1 && this->get_states()[last_state].accept && this->get_states()[state].attribute_priority != this->get_states()[last_state].attribute_priority && this->get_states()[state].attribute_priority > this->get_states()[last_state].attribute_priority)
-            {
-                last_state = state;
-                state = -1;
-            }
-        }
-        (*(const_cast<char*>(input_text.data()) + input_text.size())) = original_ending;
-
-        return ParseRecord(last_state, input_index);
-    }
-    SimpleLexToken parse_token_no_attribute(const std::string_view input_text, const size_t start)
-    {
-        const auto rec = parse_token_simple(input_text, start);
-        if(states[rec.state].accept & (rec.state != -1))
-        {
-            SimpleLexToken tok(start, this->get_states()[rec.state].attribute_priority, std::string_view(input_text.data() + start, rec.end_index - start - 1));
-            return tok;
-        }
-        return SimpleLexToken(start, 0, "");
-        
-    }
-    LexToken parse_token(const std::string_view input_text, const size_t start)
-    {
-        const auto rec = parse_token_simple(input_text, start);
-        if(states[rec.state].accept & (rec.state != -1))
-        {
-            LexToken tok(start, this->get_states()[rec.state].attribute_priority, attributes[this->get_states()[rec.state].attribute_priority], std::string_view(input_text.data() + start, rec.end_index - start - 1));
-            return tok;
-        }
-        return LexToken(start, 0, "", "");
-        
-    }
+    ParseRecord parse_token_simple(const std::string_view input_text, const size_t start);
+    SimpleLexToken parse_token_no_attribute(const std::string_view input_text, const size_t start);
+    LexToken parse_token(const std::string_view input_text, const size_t start);
 };
 class Attribute_DFA {
     friend class Attribute_NFA;
@@ -496,9 +351,9 @@ class Attribute_DFA {
         }
         return groups;
     }
-    Fast_Attribute_DFA to_fast_dfa()
+    Fast_Attribute_DFA to_fast_dfa() const noexcept
     {
-        Fast_Attribute_DFA dfa(std::move(regex), std::move(attributes));
+        Fast_Attribute_DFA dfa(regex, attributes);
         for(size_t state_index = 0; state_index < states.size(); state_index++)
         {
             const DFA_State& state = states[state_index];

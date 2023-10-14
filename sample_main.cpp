@@ -21,8 +21,8 @@ void test_2(Fast_Attribute_DFA& dfa, std::string_view input_text)
 
 int main(int argc, char ** argv)
 {
-    Fast_Attribute_DFA dfa(compile_regex(read_file("example.txt")));
-    Fast_Attribute_DFA dfa2(compile_regex(std::string("")));
+    Fast_Attribute_DFA dfa = compile_regex(read_file("example.txt"));
+    Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
     
     dfa.write_to_file("test_binary_fadfa.bin");
     
