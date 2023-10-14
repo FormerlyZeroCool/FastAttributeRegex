@@ -12,9 +12,7 @@ void test_2(Fast_Attribute_DFA& dfa, std::string_view input_text)
         index += (t.text.size() == 0);
         if(t.priority != 16 && t.text.size() > 0)
         {
-            std::cout<<token_count<<" ";
-            t.print();
-            std::cout<<'\n';
+            std::cout<<token_count<<" "<<t<<'\n';
             token_count++;
         }
     }

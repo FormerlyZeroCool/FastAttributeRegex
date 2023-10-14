@@ -40,9 +40,10 @@ struct LexToken {
     std::string_view attribute;
     std::string_view text;
     LexToken(size_t index, size_t priority, std::string_view attribute, std::string_view text): priority(priority), attribute(attribute), text(text) {}
-    void print()
+    friend std::ostream& operator<<(std::ostream& o, const LexToken& tok)
     {
-        std::cout<<"<"<<attribute<<":"<<priority<<"->"<<text<<">";
+        o<<"<"<<tok.attribute<<":"<<tok.priority<<"->"<<tok.text<<">";
+        return o;
     }
 };
 struct SimpleLexToken {
