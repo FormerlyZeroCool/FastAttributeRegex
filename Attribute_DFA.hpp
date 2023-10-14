@@ -15,7 +15,7 @@
 class Attribute_NFA;
 struct Fast_Attribute_DFA {
     struct DFA_State {
-        std::array<uint64_t, 128> transitions;
+        std::array<uint32_t, 128> transitions;
         size_t attribute_priority = 0; 
         bool accept;
         DFA_State(const bool accept, const std::string_view attribute, const size_t attribute_priority):
@@ -26,11 +26,11 @@ struct Fast_Attribute_DFA {
                 transitions[i] = -1;
             }
         }
-        void set_transition(char input, uint64_t new_state) noexcept
+        void set_transition(char input, uint32_t new_state) noexcept
         {
            transitions[input] = new_state;
         }
-        uint64_t transition_iterator(char input) const noexcept
+        uint32_t transition_iterator(char input) const noexcept
         {
            return transitions[input];
         }
@@ -46,12 +46,12 @@ struct Fast_Attribute_DFA {
         {
             return this->accept == o.accept && this->attribute_priority == o.attribute_priority && this->transitions == o.transitions;
         }
-        static inline const size_t rle_key = -2, end_state_encoding = -3;
+        static inline const uint32_t rle_key = -2, end_state_encoding = -3;
         //runtime length encode state transitions
         std::ostream& write(std::ostream& o)
         {
-            size_t count_same = 0;
-            size_t current_state = this->transitions[0];
+            uint32_t count_same = 0;
+            uint32_t current_state = this->transitions[0];
             o.write(reinterpret_cast<char*>(&this->attribute_priority), sizeof(this->attribute_priority));
             o.write(reinterpret_cast<char*>(&this->accept), sizeof(this->accept));
             for(size_t i = 0; i < this->transitions.size(); i++)
@@ -89,8 +89,8 @@ struct Fast_Attribute_DFA {
         {
             in.read(reinterpret_cast<char*>(&this->attribute_priority), sizeof(this->attribute_priority));
             in.read(reinterpret_cast<char*>(&this->accept), sizeof(this->accept));
-            size_t current = 0;
-            size_t state_index = 0;
+            uint32_t current = 0;
+            uint32_t state_index = 0;
             while(in)
             {
                 in.read(reinterpret_cast<char*>(&current), sizeof(current));
@@ -100,7 +100,7 @@ struct Fast_Attribute_DFA {
                     break;//should throw exception
                 if(current == DFA_State::rle_key)
                 {
-                    size_t count_same, transition;
+                    uint32_t count_same, transition;
                     in.read(reinterpret_cast<char*>(&count_same), sizeof(count_same));
                     in.read(reinterpret_cast<char*>(&transition), sizeof(transition));
                     for(size_t i = 0; state_index < this->transitions.size() && i < count_same; i++, state_index++)
@@ -121,7 +121,7 @@ struct Fast_Attribute_DFA {
     };
     std::ostream& write(std::ostream& o)
     {
-        size_t size = this->states.size();
+        uint32_t size = this->states.size();
         o.write(reinterpret_cast<char*>(&size), sizeof(size));
         size = this->attributes.size();
         o.write(reinterpret_cast<char*>(&size), sizeof(size));
@@ -140,7 +140,7 @@ struct Fast_Attribute_DFA {
     }
     std::istream& read_string(std::istream& in, std::string& str)
     {
-        size_t size = 0;
+        uint32_t size = 0;
         in.read(reinterpret_cast<char*>(&size), sizeof(size));
         str.clear();
         str.reserve(size);
@@ -152,7 +152,7 @@ struct Fast_Attribute_DFA {
     }
     std::istream& read(std::istream& in)
     {
-        size_t states_count = 0, attributes_count = 0;
+        uint32_t states_count = 0, attributes_count = 0;
         in.read(reinterpret_cast<char*>(&states_count), sizeof(states_count));
         in.read(reinterpret_cast<char*>(&attributes_count), sizeof(attributes_count));
         read_string(in, regex);
@@ -215,7 +215,7 @@ struct Fast_Attribute_DFA {
     {
         return 0;
     }
-    uint64_t transition(char symbol, uint64_t current_state) const noexcept
+    uint32_t transition(char symbol, uint32_t current_state) const noexcept
     {
         if(current_state == -1)
             return -1;
@@ -231,8 +231,8 @@ struct Fast_Attribute_DFA {
     }
     LexToken parse_token(const std::string_view input_text, const size_t start)
     {
-        uint64_t state = this->start_state();
-        uint64_t last_state = -1;
+        uint32_t state = this->start_state();
+        uint32_t last_state = -1;
         size_t input_index = start;
         const char original_ending = (*(const_cast<char*>(input_text.data()) + input_text.size()));
         (*(const_cast<char*>(input_text.data()) + input_text.size())) = 0;
