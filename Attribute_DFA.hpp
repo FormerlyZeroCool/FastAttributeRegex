@@ -201,12 +201,12 @@ struct Fast_Attribute_DFA {
         }
         return equal;
     }
-    void print()
+    friend std::ostream& operator<<(std::ostream& o, const Fast_Attribute_DFA& dfa)
     {
-        for(size_t state_index = 0; state_index < states.size(); state_index++)
+        for(size_t state_index = 0; state_index < dfa.states.size(); state_index++)
         {
-            DFA_State& state = states[state_index];
-            std::cout<<state_index<<(state.is_accepting() ? "@":"")<<(state.is_accepting() ? get_attribute(state):"")<<": {";
+            const DFA_State& state = dfa.states[state_index];
+            std::cout<<state_index<<(state.is_accepting() ? "@":"")<<(state.is_accepting() ? dfa.get_attribute(state):"")<<": {";
             for(size_t i = ' '; i < 128; i++)
             {
                 if(state.transition_iterator(i) != -1)
@@ -214,6 +214,7 @@ struct Fast_Attribute_DFA {
             }
             std::cout<<"}\n";
         }
+        return o;
     }
     size_t start_state() const noexcept
     {
@@ -229,7 +230,7 @@ struct Fast_Attribute_DFA {
     {
         return states;
     }
-    const std::string& get_attribute(const DFA_State& state)
+    const std::string& get_attribute(const DFA_State& state) const noexcept
     {
         return attributes[state.attribute_priority];
     }
