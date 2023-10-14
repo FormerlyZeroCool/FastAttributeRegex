@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
     dfa.write_to_file("test_binary_fadfa.bin");
     
     dfa2.load_file("test_binary_fadfa.bin");
-    //std::cout<<dfa<<'\n';
+    std::cout<<dfa<<'\n';
     const std::string test_input = read_file("testinput.c");
     test_2(dfa2, test_input);
     return 0;

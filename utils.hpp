@@ -51,7 +51,7 @@ struct SimpleLexToken {
     size_t priority = 0;
     std::string_view text;
     SimpleLexToken(size_t index, size_t priority, std::string_view text): priority(priority), text(text) {}
-    friend std::ostream& operator<<(std::ostream& o, const LexToken& tok)
+    friend std::ostream& operator<<(std::ostream& o, const SimpleLexToken& tok)
     {
         o<<"<"<<tok.priority<<"->"<<tok.text<<">";
         return o;
