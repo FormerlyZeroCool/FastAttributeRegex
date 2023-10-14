@@ -45,6 +45,16 @@ struct LexToken {
         std::cout<<"<"<<attribute<<":"<<priority<<"->"<<text<<">";
     }
 };
+struct SimpleLexToken {
+    size_t index = 0;
+    size_t priority = 0;
+    std::string_view text;
+    SimpleLexToken(size_t index, size_t priority, std::string_view text): priority(priority), text(text) {}
+    void print()
+    {
+        std::cout<<"<"<<priority<<"->"<<text<<">";
+    }
+};
 inline std::string read_file(std::string filePath)
 {
   std::fstream file = std::fstream(filePath);

@@ -184,8 +184,12 @@ struct Fast_Attribute_DFA {
     }
     std::vector<DFA_State> states;
     std::string regex;
-    std::deque<std::string> attributes;
-    Fast_Attribute_DFA(std::string&& regex, std::deque<std::string>&& attributes): regex(regex), attributes(attributes){}
+    std::vector<std::string> attributes;
+    Fast_Attribute_DFA(std::string&& regex, std::deque<std::string>&& attributes): regex(regex)
+    {
+        for(size_t i = 0; i < attributes.size(); i++)
+            this->attributes.push_back(attributes[i]);
+    }
     bool operator==(const Fast_Attribute_DFA& o) const
     {
         bool equal = states.size() == o.states.size() && regex.size() == o.regex.size() && attributes.size() == o.attributes.size();
@@ -229,8 +233,13 @@ struct Fast_Attribute_DFA {
     {
         return attributes[state.attribute_priority];
     }
-    LexToken parse_token(const std::string_view input_text, const size_t start)
+    struct ParseRecord {
+        const size_t state, end_index;
+        ParseRecord(const size_t state, const size_t end): state(state), end_index(end) {}
+    };
+    ParseRecord parse_token_simple(const std::string_view input_text, const size_t start)
     {
+
         uint32_t state = this->start_state();
         uint32_t last_state = -1;
         size_t input_index = start;
@@ -250,9 +259,26 @@ struct Fast_Attribute_DFA {
             }
         }
         (*(const_cast<char*>(input_text.data()) + input_text.size())) = original_ending;
-        if(states[last_state].accept & (last_state != -1))
+
+        return ParseRecord(last_state, input_index);
+    }
+    SimpleLexToken parse_token_no_attribute(const std::string_view input_text, const size_t start)
+    {
+        const auto rec = parse_token_simple(input_text, start);
+        if(states[rec.state].accept & (rec.state != -1))
         {
-            LexToken tok(start, this->get_states()[last_state].attribute_priority, attributes[this->get_states()[last_state].attribute_priority], std::string_view(input_text.data() + start, input_index - start - 1));
+            SimpleLexToken tok(start, this->get_states()[rec.state].attribute_priority, std::string_view(input_text.data() + start, rec.end_index - start - 1));
+            return tok;
+        }
+        return SimpleLexToken(start, 0, "");
+        
+    }
+    LexToken parse_token(const std::string_view input_text, const size_t start)
+    {
+        const auto rec = parse_token_simple(input_text, start);
+        if(states[rec.state].accept & (rec.state != -1))
+        {
+            LexToken tok(start, this->get_states()[rec.state].attribute_priority, attributes[this->get_states()[rec.state].attribute_priority], std::string_view(input_text.data() + start, rec.end_index - start - 1));
             return tok;
         }
         return LexToken(start, 0, "", "");

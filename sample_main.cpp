@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
     dfa2.load_file("test_binary_fadfa.bin");
     //nfa.print();
     //std::cout<<"\nDFA:\n";
-    dfa.print();
+    //dfa.print();
     const std::string test_input = read_file("testinput.c");
     test_2(dfa2, test_input);
     return 0;
