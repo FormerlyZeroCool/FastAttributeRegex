@@ -46,59 +46,10 @@ class Regex_Parser_Exception_Invalid_Range: public Regex_Parser_Exception {
     Regex_Parser_Exception_Invalid_Range(const char* invalid_character):
     Regex_Parser_Exception(invalid_character){}
 };
-std::pair<size_t, std::string> trim_to_line_on_index(const std::string& text, const size_t index, char delimiter = '\n')
-{
-    size_t last_delimiter = 0;
-    size_t current_delimiter = 0;
-    while(current_delimiter < text.size() && current_delimiter < index)
-    {
-        last_delimiter = current_delimiter;
-        current_delimiter = text.find(delimiter, last_delimiter + 1);
-    }
-    return std::make_pair(last_delimiter + (last_delimiter != 0), text.substr(last_delimiter, current_delimiter < text.size() ? current_delimiter - last_delimiter : text.size() - last_delimiter));
-}
-std::string show_error_in_string_single(std::string error_message, std::string erroneous_text, size_t index_of_error, char delimiter = '\n')
-{
-    std::string result;
-    result += error_message;
-    result += '\n';
-    const auto trim_info = trim_to_line_on_index(erroneous_text, index_of_error, delimiter);
-    result += trim_info.second;
-    index_of_error -= trim_info.first;//adjust index to compensate for trimmed text
-    result += '\n';
-    for(size_t i = 0; i < index_of_error; i++)
-    {
-        result += ' ';
-    }
-    result += '^';
-    return result;
-}
-std::string_view get_attribute(const std::string_view regex, size_t index)
-{
-    const size_t start = ++index;
-    size_t walker = start + 1;
-    while(walker < regex.size() && regex[walker] != ':')
-    { walker++; }
-    return regex.substr(start, walker - start);
-}
-std::string_view next_block(std::string_view regex, char opening = '(', char closing = ')')
-{
-    if(regex[0] == opening)
-    {
-        size_t length = 1, depth = 1;
-
-        while(depth && length < regex.size())
-        {
-            depth += (regex[length] == opening) - (regex[length] == closing);
-            length++;
-        }
-        if(depth != 0)
-            throw 1;
-        return regex.substr(0, length);
-    }
-    else
-        return regex.substr(0, 1);
-}
+std::pair<size_t, std::string> trim_to_line_on_index(const std::string& text, const size_t index, char delimiter = '\n');
+std::string show_error_in_string_single(std::string error_message, std::string erroneous_text, size_t index_of_error, char delimiter = '\n');
+std::string_view get_attribute(const std::string_view regex, size_t index);
+std::string_view next_block(std::string_view regex, char opening = '(', char closing = ')');
 class NFA_State {
         public:
         Span<std::vector<std::set<NFA_State*>>, 128> transitions;
@@ -134,7 +85,7 @@ class NFA_State {
 namespace std {
   template <> struct hash<std::set<NFA_State*>>
   {
-    size_t operator()(const std::set<NFA_State*> & set) const
+    inline size_t operator()(const std::set<NFA_State*> & set) const
     {
 
         size_t hash = FNV_OFFSET_32;
@@ -147,7 +98,7 @@ namespace std {
     }
   };
 }
-std::string to_string(std::string_view str)
+inline std::string to_string(std::string_view str)
 {
     return std::string(str.data(), str.size());
 }
