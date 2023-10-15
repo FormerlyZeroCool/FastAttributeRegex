@@ -7,9 +7,9 @@ Designed to be used to create dynamic Lexicographic analyzers that are fast, and
 To use the library compile the statically linkable library file with the make command, and include the Regex.hpp header type:<br>
 
 ```bash
-make run //to build, and run sample project
-//or 
-make // to build unix style statically linkable library, and sample project
+make run #to build, and run sample project
+#or 
+make # to build unix style statically linkable library, and sample project
 ```
 
 Then you can use the compile_regex function to generate an optimized finite automata for the regex given to it as a string parameter<br>
