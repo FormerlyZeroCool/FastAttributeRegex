@@ -10,10 +10,13 @@ LDFLAGS =
 LDLIBS = 
 default: sample_main regex.a
 
+run: sample_main
+	./sample_main
+
 sample_main: sample_main.o Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o 
 
 regex.a: Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o
-	ar rcs $@ $^
+	ar rcs $@ $^ 
 
 sample_main.o: sample_main.cpp Regex.hpp
 
