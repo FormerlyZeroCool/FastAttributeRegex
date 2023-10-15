@@ -8,11 +8,11 @@ To use the library compile the statically linkable library file with the make co
 Then you can use the compile_regex function to generate an optimized finite automata for the regex given to it as a string parameter<br>
 Here's an example of how to create a finite automata from a simple input regex string, see sample_main for how to read it from a file easily, and supply larger regex with multiple attributes as input:
 
-```
+```cpp
     Fast_Attribute_DFA dfa = compile_regex(std::string("1*0"));
 ```
 Then to parse regex tokens from an input string use the parseToken method on the Fast_Attribute_DFA class as follows:
-```
+```cpp
     size_t index = 0;
     std::string input_text = "1110";
     LexToken tok = dfa.parse_token(input_text, index);
@@ -21,7 +21,7 @@ The above code using the dfa we created in the previous snippet will return a to
 <br>
 Example attribute regex:
 
-```
+```r
 @keyword:(asm)|(if)|(else)|(for)|(while)|(extern)
 @id:(_|[a-zA-Z])(_|[0-9a-zA-Z])*
 @number:([0-9]+)|([0-9]*\.[0-9]*)
@@ -33,7 +33,7 @@ The LexToken will also contain the index in the source text the token was parsed
 <br>
 Below is the structure of the LexToken described above:
 
-```
+```cpp
 struct LexToken {
     //the index is the index into the source text from which this token was parsed
     size_t index = 0;
