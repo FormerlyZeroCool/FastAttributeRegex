@@ -21,6 +21,13 @@ void test_2(Fast_Attribute_DFA& dfa, std::string_view input_text)
 
 int main(int argc, char ** argv)
 {
+    if(argc < 2)
+    {
+        std::cerr<<"Error must supply path to attribute regex to be parsed in params\n";
+        exit(1);
+    }
+    Attribute_NFA nfa(read_file("example.txt"));
+    nfa.print();
     Fast_Attribute_DFA dfa = compile_regex(read_file("example.txt"));
     Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
     

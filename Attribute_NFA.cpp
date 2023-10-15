@@ -55,7 +55,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
 }
 
 
-    Attribute_NFA::Attribute_NFA(std::string regex): regex(regex)
+Attribute_NFA::Attribute_NFA(std::string regex): regex(regex)
     {
         attributes.push_back("");
         try {
@@ -124,7 +124,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
 
     }
-    bool Attribute_NFA::accepting_compound_state(const std::set<NFA_State*>& compound_state)
+bool Attribute_NFA::accepting_compound_state(const std::set<NFA_State*>& compound_state)
     {
         for(auto it = compound_state.begin(); it != compound_state.end(); it++)
         {
@@ -133,7 +133,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
         return false;
     }
-    size_t Attribute_NFA::highest_priority_attribute(const std::set<NFA_State*>& compound_state, std::unordered_map<std::string_view, size_t>& attributes_priority)
+size_t Attribute_NFA::highest_priority_attribute(const std::set<NFA_State*>& compound_state, std::unordered_map<std::string_view, size_t>& attributes_priority)
     {
         size_t attribute_index = -1;
 
@@ -146,7 +146,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
         return attribute_index == -1 ? 0 : attribute_index;
     } 
-    Fast_Attribute_DFA Attribute_NFA::to_DFA()//invalidates this NFA regex, and atrributes
+Fast_Attribute_DFA Attribute_NFA::to_DFA()//invalidates this NFA regex, and atrributes
     {
         std::unordered_map<std::string_view, size_t> attributes_priority;
         for(size_t i = 0; i < attributes.size(); i++)
@@ -194,8 +194,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         
         return dfa.minimize().to_fast_dfa();
     }
-    
-    std::string Attribute_NFA::expand_plus(std::string_view regex)
+std::string Attribute_NFA::expand_plus(std::string_view regex)
     {
         size_t index = 0;
         std::string result = "";
@@ -272,13 +271,13 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
         return result;
     }
-    size_t Attribute_NFA::find_state(NFA_State* c)
+size_t Attribute_NFA::find_state(NFA_State* c)
     {
         size_t index = 0;
         for(; index < states.size() && &states[index] != c; index++){}
         return index == states.size() ? -1 : index;
     }
-    void Attribute_NFA::print()
+void Attribute_NFA::print()
     {
        for(size_t state_index = 0; state_index < this->states.size(); state_index++)
        {
@@ -303,28 +302,28 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
            std::cout<<'\n';
        }
     }
-    NFA_State& Attribute_NFA::create_state(std::string_view attribute) noexcept
+NFA_State& Attribute_NFA::create_state(std::string_view attribute) noexcept
     {
         states.push_back(NFA_State(state_storage, false, attribute));
         return states.back();
     }
-    void Attribute_NFA::trim_block(std::string_view& block, char opening) const noexcept
+void Attribute_NFA::trim_block(std::string_view& block, char opening) const noexcept
     {
         if(block[0] == opening)//trim brackets
         {
             block = block.substr(1, block.size() - 2);
         }
     }
-    bool Attribute_NFA::is_escaped_symbol(const unsigned char c) const noexcept
+bool Attribute_NFA::is_escaped_symbol(const unsigned char c) const noexcept
     {
         return c - 1 < 8 || c - 14 < 4;
     }
-    bool Attribute_NFA::is_escapable_symbol(const char c) const noexcept
+bool Attribute_NFA::is_escapable_symbol(const char c) const noexcept
     {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '*' || c == '+'
                     || c == '\\' || c == 'n' || c == 't' || c == '@' || c == '.' || c == ':';
     }
-    char Attribute_NFA::encode_escape_symbol(const char c) const noexcept
+char Attribute_NFA::encode_escape_symbol(const char c) const noexcept
     {
         char result = 0;
         switch (c)
@@ -368,7 +367,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
         return result;
     }  
-    char Attribute_NFA::decode_escape_symbol(const char c) const noexcept
+char Attribute_NFA::decode_escape_symbol(const char c) const noexcept
     {
         char result = 0;
         switch (c)
@@ -412,7 +411,7 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
         }
         return result;
     }
-    NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, NFA_State* end, std::string_view current_attribute) 
+NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, NFA_State* end, std::string_view current_attribute) 
     {
         size_t index = 0;
         while(index < regex.size())
@@ -454,7 +453,12 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
                 end->add_transition(0, start);
                 index++;
                 start->set_accepting(false);
+                //end->set_accepting(true);
+                start = end;
+                end = &create_state(current_attribute);
+                start->set_accepting(false);
                 end->set_accepting(true);
+                start->add_transition(0, end);
             }
             else if(block[0] == '[')
             {
