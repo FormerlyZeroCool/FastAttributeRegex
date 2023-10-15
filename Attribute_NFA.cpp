@@ -418,124 +418,125 @@ char Attribute_NFA::decode_escape_symbol(const char c) const noexcept
         return result;
     }
 NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, NFA_State* end, std::string_view current_attribute) 
+{
+    size_t index = 0;
+    while(index < regex.size())
     {
-        size_t index = 0;
-        while(index < regex.size())
+        std::string_view block = next_block(regex.substr(index));
+        if(block[0] == '[')
+            block = next_block(regex.substr(index), '[', ']');
+    
+        index += block.size();
+        //implement special operations or |, 0 or 1 quanitifier ?, kleene star operator *, and range operator[
+        if(index < regex.size() && regex[index] == '|')
         {
-            std::string_view block = next_block(regex.substr(index));
-            if(block[0] == '[')
-                block = next_block(regex.substr(index), '[', ']');
-        
-            index += block.size();
-            if(index < regex.size() && regex[index] == '|')//add 3 states start with transition into two states
+            NFA_State* first_start = &create_state(current_attribute);
+            NFA_State* first_end = &create_state(current_attribute);
+            load_states(block, first_start, first_end, current_attribute)->add_transition(0, end);
+            start->add_transition(0, first_start);
+            while(index < regex.size() && regex[index] == '|')
             {
-                NFA_State* first_start = &create_state(current_attribute);
-                NFA_State* first_end = &create_state(current_attribute);
-                load_states(block, first_start, first_end, current_attribute)->add_transition(0, end);
-                start->add_transition(0, first_start);
-                while(index < regex.size() && regex[index] == '|')
-                {
-                    index++;
-                    std::string_view n_block = regex[index] == '['? next_block(regex.substr(index), '[', ']') : next_block(regex.substr(index));
-                    if(n_block.size() > 0)
-                    {
-                        NFA_State* second_start = &create_state(current_attribute);
-                        NFA_State* second_end = &create_state(current_attribute);
-                        load_states(n_block, second_start, second_end, current_attribute)->add_transition(0, end);
-                        start->add_transition(0, second_start);
-                    }
-                    index += n_block.size();
-                }
-            }
-            else if(index < regex.size() && regex[index] == '?')
-            {
-                NFA_State* repeated_start = &create_state(current_attribute);
-                NFA_State* repeated_end = &create_state(current_attribute);
-                repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
-                repeated_end->set_accepting(false);
-                repeated_start->add_transition(0, repeated_end);
-                start->add_transition(0, repeated_start);
-                repeated_end->add_transition(0, end);
                 index++;
-                start->set_accepting(false);
-                end->set_accepting(true);
-            }
-            else if(index < regex.size() && regex[index] == '*')
-            {
-                NFA_State* repeated_start = &create_state(current_attribute);
-                NFA_State* repeated_end = &create_state(current_attribute);
-                repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
-                repeated_end->set_accepting(false);
-                repeated_start->add_transition(0, repeated_end);
-                start->add_transition(0, repeated_start);
-                repeated_end->add_transition(0, end);
-                repeated_end->add_transition(0, start);
-                index++;
-                start->set_accepting(false);
-                end->set_accepting(true);
-            }
-            else if(block[0] == '[')
-            {
-                if((block.size() - 2) % 3 != 0)
-                    throw Regex_Parser_Exception_Invalid_Range(block.data());
-                trim_block(block, '[');
-                if(block.size() >= 3 && block.size() % 3 == 0)
+                std::string_view n_block = regex[index] == '['? next_block(regex.substr(index), '[', ']') : next_block(regex.substr(index));
+                if(n_block.size() > 0)
                 {
-                    size_t it = 0;
-                    while(it < block.size())
+                    NFA_State* second_start = &create_state(current_attribute);
+                    NFA_State* second_end = &create_state(current_attribute);
+                    load_states(n_block, second_start, second_end, current_attribute)->add_transition(0, end);
+                    start->add_transition(0, second_start);
+                }
+                index += n_block.size();
+            }
+        }
+        else if(index < regex.size() && regex[index] == '?')
+        {
+            NFA_State* repeated_start = &create_state(current_attribute);
+            NFA_State* repeated_end = &create_state(current_attribute);
+            repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
+            repeated_end->set_accepting(false);
+            repeated_start->add_transition(0, repeated_end);
+            start->add_transition(0, repeated_start);
+            repeated_end->add_transition(0, end);
+            index++;
+            start->set_accepting(false);
+            end->set_accepting(true);
+        }
+        else if(index < regex.size() && regex[index] == '*')
+        {
+            NFA_State* repeated_start = &create_state(current_attribute);
+            NFA_State* repeated_end = &create_state(current_attribute);
+            repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
+            repeated_end->set_accepting(false);
+            repeated_start->add_transition(0, repeated_end);
+            start->add_transition(0, repeated_start);
+            repeated_end->add_transition(0, end);
+            repeated_end->add_transition(0, start);
+            index++;
+            start->set_accepting(false);
+            end->set_accepting(true);
+        }
+        else if(block[0] == '[')
+        {
+            if((block.size() - 2) % 3 != 0)
+                throw Regex_Parser_Exception_Invalid_Range(block.data());
+            trim_block(block, '[');
+            if(block.size() >= 3 && block.size() % 3 == 0)
+            {
+                size_t it = 0;
+                while(it < block.size())
+                {
+                    for(char i = block[it]; i <= block[it + 2]; i++)
                     {
-                        for(char i = block[it]; i <= block[it + 2]; i++)
-                        {
-                            start->add_transition(i, end);
-                        }
-                        it += 3;
-                    }
-                }
-                if(index < regex.size() && regex[index] == '*')
-                {
-                    start->add_transition(0, end);
-                    end->add_transition(0, start);
-                    index++;
-                }
-                start->set_accepting(false);
-                end->set_accepting(true);
-            }
-            else if(block[0] == '(')
-            {
-                trim_block(block);
-                end = load_states(block, start, end, current_attribute);
-                if(index < regex.size() && regex[index] == '*')
-                {
-                    start->add_transition(0, end);
-                    end->add_transition(0, start);
-                    index++;
-                }
-            }
-            else if(block.size() == 1)//concat single symbol
-            {
-                if(is_escaped_symbol(block[0]))
-                {
-                    start->add_transition(decode_escape_symbol(block[0]), end);
-                }
-                else if(block[0] == '.')
-                {
-                    for(size_t i = 1; i < 128; i++)
-                    if(isprint(i))
                         start->add_transition(i, end);
+                    }
+                    it += 3;
                 }
-                else
-                    start->add_transition(block[0], end);
-                
-                end->set_attribute(current_attribute);
-                start->set_accepting(false);
-                end->set_accepting(true);
             }
-            if(index < regex.size())
+            if(index < regex.size() && regex[index] == '*')
             {
-                start = end;
-                end = &create_state(current_attribute);
+                start->add_transition(0, end);
+                end->add_transition(0, start);
+                index++;
             }
-        } 
-        
-        return end;
-    }
+            start->set_accepting(false);
+            end->set_accepting(true);
+        }
+        else if(block[0] == '(')
+        {
+            trim_block(block);
+            end = load_states(block, start, end, current_attribute);
+            if(index < regex.size() && regex[index] == '*')
+            {
+                start->add_transition(0, end);
+                end->add_transition(0, start);
+                index++;
+            }
+        }
+        else if(block.size() == 1)//concat single symbol
+        {
+            if(is_escaped_symbol(block[0]))
+            {
+                start->add_transition(decode_escape_symbol(block[0]), end);
+            }
+            else if(block[0] == '.')
+            {
+                for(size_t i = 1; i < 128; i++)
+                if(isprint(i))
+                    start->add_transition(i, end);
+            }
+            else
+                start->add_transition(block[0], end);
+            
+            end->set_attribute(current_attribute);
+            start->set_accepting(false);
+            end->set_accepting(true);
+        }
+        if(index < regex.size())
+        {
+            start = end;
+            end = &create_state(current_attribute);
+        }
+    } 
+    
+    return end;
+}
