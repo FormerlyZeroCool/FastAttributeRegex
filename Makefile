@@ -11,7 +11,7 @@ LDLIBS =
 default: sample_main regex.a
 
 run: sample_main
-	./sample_main example.txt
+	./sample_main example.txt testinput.c
 
 sample_main: sample_main.o Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o 
 

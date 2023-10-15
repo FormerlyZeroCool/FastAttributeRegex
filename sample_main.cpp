@@ -1,6 +1,6 @@
 #include "Regex.hpp"
 
-void test_2(Fast_Attribute_DFA& dfa, std::string_view input_text)
+void example_lexing_entire_string(Fast_Attribute_DFA& dfa, std::string_view input_text)
 {
     size_t index = 0;
     size_t token_count = 0;
@@ -21,12 +21,13 @@ void test_2(Fast_Attribute_DFA& dfa, std::string_view input_text)
 
 int main(int argc, char ** argv)
 {
-    if(argc < 2)
+    if(argc < 3)
     {
-        std::cerr<<"Error must supply path to attribute regex to be parsed in params\n";
+        std::cerr<<"Error must supply path to attribute regex to be parsed in first param, and file to be lexed in second\n";
         exit(1);
     }
     Attribute_NFA nfa(read_file("example.txt"));
+    std::cout<<"\n\nNFA generated from file: "<<argv[1]<<":\n\n";
     nfa.print();
     Fast_Attribute_DFA dfa = compile_regex(read_file("example.txt"));
     Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
@@ -34,8 +35,11 @@ int main(int argc, char ** argv)
     dfa.write_to_file("test_binary_fadfa.bin");
     
     dfa2.load_file("test_binary_fadfa.bin");
+    std::cout<<"\n\n\nDFA generated from file: "<<argv[1]<<":\n\n";
     std::cout<<dfa<<'\n';
-    const std::string test_input = read_file("testinput.c");
-    test_2(dfa2, test_input);
+    std::string file_to_be_lexed = "testinput.c";
+    const std::string test_input = read_file(file_to_be_lexed);
+    std::cout<<"\nTokens parsed by performing lexical analysis on file: "<<file_to_be_lexed<<" with dfa generated:\n";
+    example_lexing_entire_string(dfa2, test_input);
     return 0;
 }

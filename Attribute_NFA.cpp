@@ -316,12 +316,12 @@ void Attribute_NFA::trim_block(std::string_view& block, char opening) const noex
     }
 bool Attribute_NFA::is_escaped_symbol(const unsigned char c) const noexcept
     {
-        return c - 1 < 8 || c - 14 < 4;
+        return c - 1 < 8 || c - 14 < 5;
     }
 bool Attribute_NFA::is_escapable_symbol(const char c) const noexcept
     {
         return c == '(' || c == ')' || c == '[' || c == ']' || c == '*' || c == '+'
-                    || c == '\\' || c == 'n' || c == 't' || c == '@' || c == '.' || c == ':';
+                    || c == '\\' || c == 'n' || c == 't' || c == '@' || c == '.' || c == ':' || c == '?';
     }
 char Attribute_NFA::encode_escape_symbol(const char c) const noexcept
     {
@@ -363,6 +363,9 @@ char Attribute_NFA::encode_escape_symbol(const char c) const noexcept
             break;
             case ':':
                 result = 17;
+            break;
+            case '?':
+                result = 18;
             break;
         }
         return result;
@@ -408,6 +411,9 @@ char Attribute_NFA::decode_escape_symbol(const char c) const noexcept
             case 17:
                 result = ':';
             break;
+            case 18:
+                result = '?';
+            break;
         }
         return result;
     }
@@ -440,6 +446,19 @@ NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, 
                     }
                     index += n_block.size();
                 }
+            }
+            else if(index < regex.size() && regex[index] == '?')
+            {
+                NFA_State* repeated_start = &create_state(current_attribute);
+                NFA_State* repeated_end = &create_state(current_attribute);
+                repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
+                repeated_end->set_accepting(false);
+                repeated_start->add_transition(0, repeated_end);
+                start->add_transition(0, repeated_start);
+                repeated_end->add_transition(0, end);
+                index++;
+                start->set_accepting(false);
+                end->set_accepting(true);
             }
             else if(index < regex.size() && regex[index] == '*')
             {
