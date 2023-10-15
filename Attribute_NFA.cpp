@@ -447,7 +447,7 @@ NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, 
                 NFA_State* repeated_end = &create_state(current_attribute);
                 repeated_end = load_states(block, repeated_start, repeated_end, current_attribute);
                 repeated_end->set_accepting(false);
-                start->add_transition(0, end);
+                repeated_start->add_transition(0, repeated_end);
                 start->add_transition(0, repeated_start);
                 repeated_end->add_transition(0, end);
                 repeated_end->add_transition(0, start);

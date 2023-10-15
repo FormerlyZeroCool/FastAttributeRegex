@@ -1,1 +1,16 @@
-@comment:a*b*c
+@comment://.*\n
+@error:(00+\.)|([0-9]*\.[0-9]+00)|(00+)
+@keyword:(asm)|(if)|(else)|(for)|(while)|(extern)
+@id:(_|[a-zA-Z])(_|[0-9a-zA-Z])*
+@number:([0-9]+)|([0-9]*\.[0-9]*)
+@string:"[ -!#-}]*"
+@lpar:\(
+@rpar:\)
+@lbrace:{
+@rbrace:}
+@semicolon:;
+@multi_char_bin_op:(==)|(>=)|(<=)
+@assign_op:=
+@un_op:\+\+
+@bin_op:<|>|\+|-|/|\*
+@skip: |\t
