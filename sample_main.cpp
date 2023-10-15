@@ -30,14 +30,18 @@ int main(int argc, char ** argv)
     std::cout<<"\n\nNFA generated from file: "<<argv[1]<<":\n\n";
     nfa.print();
     Fast_Attribute_DFA dfa = compile_regex(read_file("example.txt"));
+    //created empty dfa to show how to load dfa from file
     Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
     
     dfa.write_to_file("test_binary_fadfa.bin");
     
     dfa2.load_file("test_binary_fadfa.bin");
+
+
     std::cout<<"\n\n\nDFA generated from file: "<<argv[1]<<":\n\n";
     std::cout<<dfa<<'\n';
-    std::string file_to_be_lexed = "testinput.c";
+
+    std::string file_to_be_lexed = argv[2];
     const std::string test_input = read_file(file_to_be_lexed);
     std::cout<<"\nTokens parsed by performing lexical analysis on file: "<<file_to_be_lexed<<" with dfa generated:\n";
     example_lexing_entire_string(dfa2, test_input);

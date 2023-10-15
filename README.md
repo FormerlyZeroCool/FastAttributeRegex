@@ -4,7 +4,14 @@ A small library that implements attributable Unix style regex with deterministic
 <br>
 Designed to be used to create dynamic Lexicographic analyzers that are fast, and easily integrated with C++ programs<br>
 <br>
-To use the library compile the statically linkable library file with the make command, and include the Regex.hpp header<br>
+To use the library compile the statically linkable library file with the make command, and include the Regex.hpp header type:<br>
+
+```bash
+make run //to build, and run sample project
+//or 
+make // to build unix style statically linkable library, and sample project
+```
+
 Then you can use the compile_regex function to generate an optimized finite automata for the regex given to it as a string parameter<br>
 Here's an example of how to create a finite automata from a simple input regex string, see sample_main for how to read it from a file easily, and supply larger regex with multiple attributes as input:
 
