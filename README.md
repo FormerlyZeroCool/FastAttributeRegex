@@ -21,7 +21,7 @@ The above code using the dfa we created in the previous snippet will return a to
 <br>
 Example attribute regex:
 
-```r
+```c
 @keyword:(asm)|(if)|(else)|(for)|(while)|(extern)
 @id:(_|[a-zA-Z])(_|[0-9a-zA-Z])*
 @number:([0-9]+)|([0-9]*\.[0-9]*)
