@@ -32,6 +32,7 @@ as well as a priority corresponding to the attribute, where "keyword" will have 
 The LexToken will also contain the index in the source text the token was parsed from as well as the actual text of the parsed token.<br>
 <br>
 Below is the structure of the LexToken described above:
+
 ```
 struct LexToken {
     size_t index = 0;
