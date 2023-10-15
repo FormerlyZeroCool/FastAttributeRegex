@@ -25,3 +25,6 @@ Fast_Attribute_DFA.o: Attribute_DFA.hpp Fast_Attribute_DFA.cpp
 Attribute_DFA.o: Attribute_DFA.hpp Attribute_DFA.cpp
 
 Attribute_NFA.o: Attribute_NFA.hpp
+
+clean:
+	rm -f *.o regex.a sample_main
