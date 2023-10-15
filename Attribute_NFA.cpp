@@ -450,15 +450,10 @@ NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, 
                 start->add_transition(0, end);
                 start->add_transition(0, repeated_start);
                 repeated_end->add_transition(0, end);
-                end->add_transition(0, start);
+                repeated_end->add_transition(0, start);
                 index++;
                 start->set_accepting(false);
-                //end->set_accepting(true);
-                start = end;
-                end = &create_state(current_attribute);
-                start->set_accepting(false);
                 end->set_accepting(true);
-                start->add_transition(0, end);
             }
             else if(block[0] == '[')
             {
