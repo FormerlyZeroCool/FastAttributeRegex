@@ -8,8 +8,12 @@ CXXFLAGS = -O3 -std=c++17 -Wall
 
 LDFLAGS = 
 LDLIBS = 
+default: sample_main regex.a
 
 sample_main: sample_main.o Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o 
+
+regex.a: Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o
+	ar rcs $@ $^
 
 sample_main.o: sample_main.cpp Regex.hpp
 
