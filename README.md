@@ -39,7 +39,8 @@ struct LexToken {
     size_t priority = 0;
     std::string_view attribute;
     std::string_view text;
-    LexToken(size_t index, size_t priority, std::string_view attribute, std::string_view text): priority(priority), attribute(attribute), text(text) {}
+    LexToken(size_t index, size_t priority, std::string_view attribute, std::string_view text): 
+        priority(priority), attribute(attribute), text(text) {}
     friend std::ostream& operator<<(std::ostream& o, const LexToken& tok)
     {
         o<<"<"<<tok.attribute<<":"<<tok.priority<<"->"<<tok.text<<">";
