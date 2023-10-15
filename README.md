@@ -35,6 +35,7 @@ Below is the structure of the LexToken described above:
 
 ```
 struct LexToken {
+    //the index is the index into the source text from which this token was parsed
     size_t index = 0;
     size_t priority = 0;
     std::string_view attribute;
