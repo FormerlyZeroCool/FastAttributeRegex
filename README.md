@@ -28,7 +28,7 @@ Example attribute regex:
 ```
 <br>
 The above code defines three classes of attributes named "keyword" "id" and "number" respectively in the LexToken, which is returned by the parseToken method they will have a string_view containing that attribute.<br>
-as well as a priority corresponding to the attribute, where "keyword" will have priority 1, "id" priority 2, and "number" priority 3 and so on for other classes.<br>
+As well as a priority corresponding to the attribute, where "keyword" will have priority 1, "id" priority 2, and "number" priority 3 and so on for other classes.<br>
 The LexToken will also contain the index in the source text the token was parsed from as well as the actual text of the parsed token.<br>
 <br>
 Below is the structure of the LexToken described above:
