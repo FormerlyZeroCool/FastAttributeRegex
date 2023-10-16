@@ -55,32 +55,12 @@ class NFA_State {
         Span<std::vector<std::set<NFA_State*>>, 128> transitions;
         bool accept;
         std::string_view attribute;
-        NFA_State(std::vector<std::set<NFA_State*>>& storage, bool accept, std::string_view attribute): 
-        transitions(storage, storage.size()), accept(accept), attribute(attribute)
-        {
-           for(int i = 0; i < transitions.size(); i++)
-               storage.push_back(std::set<NFA_State*>());
-        }
-        void add_transition(char input, NFA_State* new_state) noexcept
-        {
-           transitions[input].insert(new_state);
-        }
-        auto transition_iterator(char input) noexcept
-        {
-           return transitions[input].begin();
-        }
-        bool is_accepting() const noexcept
-        {
-           return accept;
-        }
-        void set_accepting(bool is_accepting) noexcept
-        {
-           accept = is_accepting;
-        }
-        void set_attribute(std::string_view attribute) noexcept
-        {
-           this->attribute = attribute;
-        }
+        NFA_State(std::vector<std::set<NFA_State*>>& storage, bool accept, std::string_view attribute);
+        void add_transition(char input, NFA_State* new_state) noexcept;
+        auto transition_iterator(char input) noexcept;
+        bool is_accepting() const noexcept;
+        void set_accepting(bool is_accepting) noexcept;
+        void set_attribute(std::string_view attribute) noexcept;
     };
 namespace std {
   template <> struct hash<std::set<NFA_State*>>

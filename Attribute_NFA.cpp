@@ -55,6 +55,34 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
 }
 
 
+NFA_State::NFA_State(std::vector<std::set<NFA_State*>>& storage, bool accept, std::string_view attribute): 
+        transitions(storage, storage.size()), accept(accept), attribute(attribute)
+        {
+           for(int i = 0; i < transitions.size(); i++)
+               storage.push_back(std::set<NFA_State*>());
+        }
+void NFA_State::add_transition(char input, NFA_State* new_state) noexcept
+{
+   transitions[input].insert(new_state);
+}
+auto NFA_State::transition_iterator(char input) noexcept
+{
+   return transitions[input].begin();
+}
+bool NFA_State::is_accepting() const noexcept
+{
+   return accept;
+}
+void NFA_State::set_accepting(bool is_accepting) noexcept
+{
+   accept = is_accepting;
+}
+void NFA_State::set_attribute(std::string_view attribute) noexcept
+{
+   this->attribute = attribute;
+}
+
+
 Attribute_NFA::Attribute_NFA(std::string regex): regex(regex)
     {
         attributes.push_back("");

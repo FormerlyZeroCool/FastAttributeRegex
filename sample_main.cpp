@@ -26,10 +26,10 @@ int main(int argc, char ** argv)
         std::cerr<<"Error must supply path to attribute regex to be parsed in first param, and file to be lexed in second\n";
         exit(1);
     }
-    Attribute_NFA nfa(read_file("example.txt"));
+    Attribute_NFA nfa(read_file(argv[1]));
     std::cout<<"\n\nNFA generated from file: "<<argv[1]<<":\n\n";
     nfa.print();
-    Fast_Attribute_DFA dfa = compile_regex(read_file("example.txt"));
+    Fast_Attribute_DFA dfa = compile_regex(read_file(argv[1]));
     //created empty dfa to show how to load dfa from file
     Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
     
