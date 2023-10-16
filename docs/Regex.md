@@ -45,7 +45,7 @@ Example usage:
 
 // ...
 
-std::string regex_pattern = "(ab|cd)*ef";
+std::string regex_pattern = "((ab)|(cd))*ef";
 Fast_Attribute_DFA compiled_dfa = compile_regex(regex_pattern);
 
 // Alternatively, using string_view
