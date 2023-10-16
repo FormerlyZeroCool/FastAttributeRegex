@@ -47,77 +47,9 @@ struct Fast_Attribute_DFA {
         }
         static inline const uint32_t rle_key = -2, end_state_encoding = -3;
         //runtime length encode state transitions
-        std::ostream& write(std::ostream& o)
-        {
-            uint32_t count_same = 0;
-            uint32_t current_state = this->transitions[0];
-            o.write(reinterpret_cast<char*>(&this->attribute_priority), sizeof(this->attribute_priority));
-            o.write(reinterpret_cast<char*>(&this->accept), sizeof(this->accept));
-            for(size_t i = 0; i < this->transitions.size(); i++)
-            {
-                if(this->transitions[i] != current_state)
-                {
-                    if(count_same > 1)
-                    {
-                        o.write(reinterpret_cast<const char*>(&DFA_State::rle_key), sizeof(DFA_State::rle_key));
-                        o.write(reinterpret_cast<char*>(&count_same), sizeof(count_same));
-                        o.write(reinterpret_cast<char*>(&current_state), sizeof(current_state));
-                    }
-                    else   
-                        o.write(reinterpret_cast<char*>(&current_state), sizeof(current_state));
-
-                    current_state = this->transitions[i];
-                    count_same = 1;
-                }
-                else
-                    count_same++;
-            }
-            if(count_same > 1)
-            {
-                o.write(reinterpret_cast<const char*>(&DFA_State::rle_key), sizeof(DFA_State::rle_key));
-                o.write(reinterpret_cast<char*>(&count_same), sizeof(count_same));
-                o.write(reinterpret_cast<char*>(&current_state), sizeof(current_state));
-            }
-            else   
-                o.write(reinterpret_cast<char*>(&current_state), sizeof(current_state));
-
-            o.write(reinterpret_cast<const char*>(&DFA_State::end_state_encoding), sizeof(DFA_State::end_state_encoding));
-            return o;
-        }
-        std::istream& read(std::istream& in)
-        {
-            in.read(reinterpret_cast<char*>(&this->attribute_priority), sizeof(this->attribute_priority));
-            in.read(reinterpret_cast<char*>(&this->accept), sizeof(this->accept));
-            uint32_t current = 0;
-            uint32_t state_index = 0;
-            while(in)
-            {
-                in.read(reinterpret_cast<char*>(&current), sizeof(current));
-                if(current == DFA_State::end_state_encoding)
-                    break;
-                if(state_index >= this->transitions.size())
-                    break;//should throw exception
-                if(current == DFA_State::rle_key)
-                {
-                    uint32_t count_same, transition;
-                    in.read(reinterpret_cast<char*>(&count_same), sizeof(count_same));
-                    in.read(reinterpret_cast<char*>(&transition), sizeof(transition));
-                    for(size_t i = 0; state_index < this->transitions.size() && i < count_same; i++, state_index++)
-                    {
-                        this->transitions[state_index] = transition;
-                    }
-                }
-                else
-                {
-                    this->transitions[state_index++] = current;
-                }
-            }
-            if(current != DFA_State::end_state_encoding)
-                std::cerr<<"Corrupted file no end state encoding after state\n";
-            
-            return in;
-        }
-    };
+        std::ostream& write(std::ostream& o);
+        std::istream& read(std::istream& in);
+        };
     std::ostream& write(std::ostream& o);
     std::istream& read_string(std::istream& in, std::string& str);
     std::istream& read(std::istream& in);
