@@ -4,8 +4,8 @@
 #include "Regex.hpp"
 
 int main() {
-    const std::string input = "ipsum";
-    const char* pattern = "ipsum";
+    const std::string input = "1111110";
+    const char* pattern = "0?1+0+";
     const int iterations = 100000;
 
     regex_t regex;
@@ -19,7 +19,7 @@ int main() {
         }
         auto regexEnd = std::chrono::high_resolution_clock::now();
         auto regexDuration = std::chrono::duration_cast<std::chrono::microseconds>(regexEnd - regexStart).count();
-    
+
         // Print results
         std::cout << "C regex.h: " << iterations << " matches, Total Runtime: " << regexDuration << " microseconds" << std::endl;
     }
