@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
 
 
     std::cout<<"\n\n\nDFA generated from file: "<<argv[1]<<":\n\n";
-    std::cout<<dfa<<'\n';
+    std::cout<<dfa2<<'\n';
 
     std::string file_to_be_lexed = argv[2];
     const std::string test_input = read_file(file_to_be_lexed);

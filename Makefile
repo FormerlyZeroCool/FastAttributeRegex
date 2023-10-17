@@ -13,6 +13,14 @@ default: sample_main regex.a
 run: sample_main
 	./sample_main example.txt testinput.c
 
+
+run_bench: benchmark_cregex
+	./benchmark_cregex
+
+benchmark_cregex: benchmark_cregex.o Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o 
+
+benchmark_cregex.o: benchmark_cregex.cpp Regex.hpp
+
 sample_main: sample_main.o Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o 
 
 regex.a: Fast_Attribute_DFA.o Attribute_DFA.o Attribute_NFA.o
