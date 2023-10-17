@@ -13,7 +13,6 @@ default: sample_main regex.a
 run: sample_main
 	./sample_main example.txt testinput.c
 
-
 run_bench: benchmark_cregex
 	./benchmark_cregex
 
