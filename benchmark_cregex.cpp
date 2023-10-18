@@ -4,13 +4,11 @@
 #include <chrono>
 #include "Regex.hpp"
 
-
-int main() {
-    const std::string input = "1111110";
-    const char* pattern = "0?1+0+";
+void test(const std::string input, const char* pattern)
+{
     const int iterations = 100000;
     double timings[3] {0.0};
-
+    std::cout<<"matching input: "<<input<<" with regex: "<<pattern<<'\n';
     regex_t regex;
     regcomp(&regex, pattern, REG_EXTENDED);
     bool found;
@@ -59,6 +57,17 @@ int main() {
     }
     std::cout<<"FastAttributeRegex ran in:\n";
     std::cout<<(timings[2] / timings[0] * 100)<<" Percent of the time it took regex.h or "<<(timings[0] / timings[2])<<" times faster\n";
-    std::cout<<(timings[2] / timings[1] * 100)<<" Percent of the time it took std::regex or "<<(timings[1] / timings[2])<<" times faster\n";
+    std::cout<<(timings[2] / timings[1] * 100)<<" Percent of the time it took std::regex or "<<(timings[1] / timings[2])<<" times faster\n\n";
+
+}
+
+
+
+int main() {
+
+    const std::string input = "1110";
+    test(input, "0?1+0+");
+    test(input, "0?1111+");
+    test("0111111111", "0?1111111*");
     return 0;
 }
