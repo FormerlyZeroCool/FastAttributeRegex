@@ -505,27 +505,44 @@ NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, 
         }
         else if(block[0] == '[')
         {
-            if((block.size() - 2) % 3 != 0)
-                throw Regex_Parser_Exception_Invalid_Range(block.data());
             trim_block(block, '[');
-            if(block.size() >= 3 && block.size() % 3 == 0)
+            if(block.size() % 3 != 0 || (block.size() >= 3 && block[1] != '-'))
             {
-                size_t it = 0;
-                while(it < block.size())
+                for(size_t i = 0; i < block.size(); i++)
                 {
-                    for(char i = block[it]; i <= block[it + 2]; i++)
+                    const char c = block[i];
+                    if(is_escaped_symbol(c))
                     {
-                        start->add_transition(i, end);
+                        const char decoded = decode_escape_symbol(c);
+                        start->add_transition(decoded, end);
                     }
-                    it += 3;
+                    else
+                        start->add_transition(c, end);
                 }
             }
-            if(index < regex.size() && regex[index] == '*')
+            else if(block.size() % 3 == 0)
             {
-                start->add_transition(0, end);
-                end->add_transition(0, start);
-                index++;
+                if(block.size() >= 3 && block.size() % 3 == 0)
+                {
+                    size_t it = 0;
+                    while(it < block.size())
+                    {
+                        for(char i = block[it]; i <= block[it + 2]; i++)
+                        {
+                            start->add_transition(i, end);
+                        }
+                        it += 3;
+                    }
+                }
+                if(index < regex.size() && regex[index] == '*')
+                {
+                    start->add_transition(0, end);
+                    end->add_transition(0, start);
+                    index++;
+                }
             }
+            else
+                throw Regex_Parser_Exception_Invalid_Range(block.data());
             start->set_accepting(false);
             end->set_accepting(true);
         }
