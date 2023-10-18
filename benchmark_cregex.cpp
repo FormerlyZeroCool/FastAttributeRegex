@@ -67,7 +67,7 @@ int main() {
 
     const std::string input = "1110";
     test(input, "0?1+0+");
-    test(input, "0?1111+");
+    test(input, "0?0?0?0?0?0?0?0?0?0?1111+");
     test("0111111111", "0?1111111*");
     return 0;
 }
