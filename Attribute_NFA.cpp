@@ -50,9 +50,9 @@ std::string_view next_block(std::string_view regex, char opening, char closing)
             throw 1;
         return regex.substr(0, length);
     }
-    else
-        return regex.substr(0, 1);
+    return regex.substr(0, 1);
 }
+
 
 
 NFA_State::NFA_State(std::vector<std::set<NFA_State*>>& storage, bool accept, std::string_view attribute): 
@@ -557,24 +557,34 @@ NFA_State* Attribute_NFA::load_states(std::string_view regex, NFA_State* start, 
                 index++;
             }
         }
-        else if(block.size() == 1)//concat single symbol
+        else //if(block.size() == 1)//concat single symbol
         {
-            if(is_escaped_symbol(block[0]))
+            size_t index = 0;
+            while(index < block.size())
             {
-                start->add_transition(decode_escape_symbol(block[0]), end);
+                if(is_escaped_symbol(block[index]))
+                {
+                    start->add_transition(decode_escape_symbol(block[index]), end);
+                }
+                else if(block[index] == '.')
+                {
+                    for(size_t i = 1; i < 128; i++)
+                    if(isprint(i))
+                        start->add_transition(i, end);
+                }
+                else
+                    start->add_transition(block[index], end);
+
+                end->set_attribute(current_attribute);
+                start->set_accepting(false);
+                end->set_accepting(true);
+                index++;
+                if(index < block.size())
+                {
+                    start = end;
+                    end = &create_state(current_attribute);
+                }
             }
-            else if(block[0] == '.')
-            {
-                for(size_t i = 1; i < 128; i++)
-                if(isprint(i))
-                    start->add_transition(i, end);
-            }
-            else
-                start->add_transition(block[0], end);
-            
-            end->set_attribute(current_attribute);
-            start->set_accepting(false);
-            end->set_accepting(true);
         }
         if(index < regex.size())
         {
