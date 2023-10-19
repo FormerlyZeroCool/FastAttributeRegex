@@ -28,7 +28,8 @@
 
 These operators provide powerful ways to define patterns for matching strings in regular expressions. They allow for flexibility in specifying the structure of the text you want to search for. Remember that regex patterns can be combined to create complex search patterns.<br>
 <br>
-To use the library, compile the statically linkable library file with the `make` command, and include the `Regex.hpp` header type:<br>
+
+## To use the library, compile the statically linkable library file with the `make` command, and include the `Regex.hpp` header type:
 
 ```bash
 make run #to build, and run sample project
