@@ -4,7 +4,7 @@
 
 **Designed for creating dynamic Lexicographic analyzers that are fast, and easily integrated with C++ programs**
 
-## Here is the documentation for the supported regex operators `?`, `*`, `+`, `[]`, and `|`:
+## Documentation for the supported regex operators `?`, `*`, `+`, `[]`, and `|`:
 
 1. **`?` - Zero or One Occurrence:**
    - The `?` operator matches the preceding character or group zero or one time. It indicates that the preceding element is optional.
