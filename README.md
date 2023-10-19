@@ -1,8 +1,8 @@
 # FastAttributeRegex
 
-A small library that implements attributable Unix style regex with deterministic finite automata<br>
-<br>
-Designed for creating dynamic Lexicographic analyzers that are fast, and easily integrated with C++ programs<br>
+**A small library that implements attributable Unix style regex with deterministic finite automata**
+
+**Designed for creating dynamic Lexicographic analyzers that are fast, and easily integrated with C++ programs**
 
 ## Here is the documentation for the supported regex operators `?`, `*`, `+`, `[]`, and `|`:
 
