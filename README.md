@@ -43,7 +43,9 @@ Here's an example of how to create a finite automata from a simple input regex s
 ```cpp
     Fast_Attribute_DFA dfa = compile_regex(std::string("1*0"));
 ```
-Then to parse regex tokens from an input string use the `parseToken` method on the `Fast_Attribute_DFA` class as follows:
+
+## To parse regex tokens from an input string use the `parseToken` method on the `Fast_Attribute_DFA` class as follows:
+
 ```cpp
     size_t index = 0;
     std::string input_text = "1110";
