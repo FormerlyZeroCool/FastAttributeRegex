@@ -11,7 +11,7 @@
 #include <string>
 #include <fstream>
 #include "utils.hpp"
-
+  
 struct Fast_Attribute_DFA {
     struct DFA_State {
         std::array<uint32_t, 128> transitions;

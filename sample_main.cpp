@@ -29,7 +29,8 @@ int main(int argc, char ** argv)
     Attribute_NFA nfa(read_file(argv[1]));
     std::cout<<"\n\nNFA generated from file: "<<argv[1]<<":\n\n";
     nfa.print();
-    Fast_Attribute_DFA dfa = compile_regex(read_file(argv[1]));
+    std::string input = read_file(argv[1]);
+    Fast_Attribute_DFA dfa = compile_regex(input);
     //created empty dfa to show how to load dfa from file
     Fast_Attribute_DFA dfa2 = compile_regex(std::string(""));
     
